@@ -16,15 +16,6 @@ scene:
     background:
         color: grey
 
-styles:
-    color_halftone:
-        shaders:
-            uniforms:
-                dot_frequency: 50.
-                dot_scale: 1.5
-                true_color: false
-
-
 layers:
     water:
         data: { source: mapzen }
@@ -35,7 +26,7 @@ layers:
     nyc:
         data: { source: nyc }
         draw:
-            color_halftone_polygons:
+            cm_halftone_polygons:
                 order: 1
                 color: |
                     function() { 
