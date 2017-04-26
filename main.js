@@ -36,13 +36,40 @@ map = (function () {
     // setView expects format ([lat, long], zoom)
     map.setView(map_start_location.slice(0, 3), map_start_location[2]);
 
-    var hash = new L.Hash(map);
+    var mousetrap = false;
+    var mouse_monitor = function(e) {
+        var height = document.body.clientHeight;
+        var width = document.body.clientWidth;
 
+        var x = e.clientX;
+        var y = e.clientY;
+        var xpos = ((x - (width / 2)));
+        var ypos = ((y - (height / 2)))*-1.;
+
+        // scene.styles.cm_halftone_polygons.center = [xpos,ypos];
+        // console.log(xpos,ypos);
+        if (mousetrap) scene.styles.cm_halftone_polygons.shaders.uniforms.center = [x,y];
+    }
+
+    window.onload = function() {
+      this.addEventListener('mousemove', mouse_monitor);
+      this.addEventListener('mousedown', function(){mousetrap = true;});
+      this.addEventListener('mouseup', function(){mousetrap = false;});
+    }
+
+    function MouseWheelHandler(e) {
+
+        // cross-browser wheel delta
+        var e = window.event || e; // old IE support
+        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+        console.log(delta);
+    }
     /***** Render loop *****/
 
     window.addEventListener('load', function () {
         // Scene initialized
         layer.on('init', function() {
+          this.addEventListener("mousewheel", function() {console.log('test')}, false);
         });
         layer.addTo(map);
     });
