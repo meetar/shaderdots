@@ -1,0 +1,66 @@
+import:
+    - halftone.yaml
+
+sources:
+    mapzen:
+        type: TopoJSON
+        url: https://tile.mapzen.com/mapzen/vector/v1/all/{z}/{x}/{y}.topojson
+        url_params:
+            api_key: mapzen-tDHBHDp
+        max_zoom: 16
+    nyc:
+        type: GeoJSON
+        url: nyc.geojson
+
+scene:
+    background:
+        color: grey
+
+styles:
+    color_halftone:
+        shaders:
+            uniforms:
+                dot_frequency: 50.
+                dot_scale: 1.5
+                true_color: false
+
+
+layers:
+    water:
+        data: { source: mapzen }
+        draw:
+            polygons:
+                order: function() { return feature.sort_rank; }
+                color: '#353535'
+    nyc:
+        data: { source: nyc }
+        draw:
+            color_halftone_polygons:
+                order: 1
+                color: |
+                    function() { 
+
+                        function hashCode(str) {
+                            var hash = 0;
+                            for (var i = 0; i < str.length; i++) {
+                               hash = str.charCodeAt(i) + ((hash << 5) - hash);
+                            }
+                            return hash;
+                        } 
+
+                        function intToRGB(i){
+                            var c = (i & 0x00FFFFFF)
+                                .toString(16)
+                                .toUpperCase();
+                            return "00000".substring(0, 6 - c.length) + c;
+                        }
+                        
+                        var out = intToRGB(hashCode(feature.NTAName));
+                        out = out.slice(0,2)+'00'+out.slice(4,6);
+                        return '#'+out;
+
+                    }
+            lines:
+                order: 10000
+                color: white
+                width: 1px
