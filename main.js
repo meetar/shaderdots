@@ -36,40 +36,33 @@ map = (function () {
     // setView expects format ([lat, long], zoom)
     map.setView(map_start_location.slice(0, 3), map_start_location[2]);
 
+    // adust the origin point of the shader for scaling and panning
+    var move_shader = function(e) {
+        // set the origin of the cm_halftone shader
+        scene.styles.cm_halftone_polygons.shaders.uniforms.center = [e.clientX,e.clientY];
+    }
+
+    // "clicked" state toggle: don't adjust the shader if the mouse is only moving
     var mousetrap = false;
     var mouse_monitor = function(e) {
-        var height = document.body.clientHeight;
-        var width = document.body.clientWidth;
-
-        var x = e.clientX;
-        var y = e.clientY;
-        var xpos = ((x - (width / 2)));
-        var ypos = ((y - (height / 2)))*-1.;
-
-        // scene.styles.cm_halftone_polygons.center = [xpos,ypos];
-        // console.log(xpos,ypos);
-        if (mousetrap) scene.styles.cm_halftone_polygons.shaders.uniforms.center = [x,y];
+        if (mousetrap) {
+            move_shader(e);
+        }
     }
 
-    window.onload = function() {
-      this.addEventListener('mousemove', mouse_monitor);
-      this.addEventListener('mousedown', function(){mousetrap = true;});
-      this.addEventListener('mouseup', function(){mousetrap = false;});
-    }
-
-    function MouseWheelHandler(e) {
-
-        // cross-browser wheel delta
-        var e = window.event || e; // old IE support
-        var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
-        console.log(delta);
-    }
     /***** Render loop *****/
 
     window.addEventListener('load', function () {
+        // add event listeners and set toggle for shader adjustment
+        this.addEventListener('mousemove', mouse_monitor);
+        this.addEventListener('mousewheel', move_shader, true);
+        this.addEventListener("mousedown", function() {mousetrap=true;});
+        this.addEventListener("mouseup", function() {mousetrap=false;});
+        this.addEventListener("drag", function() {mousetrap=true;});
+        this.addEventListener("dragend", function() {mousetrap=false;});
+
         // Scene initialized
         layer.on('init', function() {
-          this.addEventListener("mousewheel", function() {console.log('test')}, false);
         });
         layer.addTo(map);
     });
