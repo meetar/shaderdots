@@ -10,7 +10,7 @@ sources:
         max_zoom: 16
     nyc:
         type: GeoJSON
-        url: nyc.geojson
+        url: nyc_census_tracts.geojson
 
 scene:
     background:
@@ -45,8 +45,8 @@ layers:
                                 .toUpperCase();
                             return "00000".substring(0, 6 - c.length) + c;
                         }
-                        
-                        var out = intToRGB(hashCode(feature.NTAName));
+
+                        var out = intToRGB(feature.area*1000);
                         out = out.slice(0,2)+'00'+out.slice(4,6);
                         return '#'+out;
 
