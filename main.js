@@ -67,6 +67,55 @@ map = (function () {
         layer.addTo(map);
     });
 
-    return map;
+    // GUI options for rendering modes/effects
+    var style_controls = {
+        'radius': 2.5,
+        'scale': 50,
+    };
 
+    // Create dat GUI
+    var gui = new dat.GUI({ autoPlace: true });
+    function addGUI () {
+        gui.add(style_controls, 'radius', 0, 5).onChange(function(value) {
+            mousetrap = false; // don't animate the shader during value change
+            scene.styles.cm_halftone_polygons.shaders.uniforms.dot_scale = 5 - value;
+            scene.requestRedraw();
+        });
+        gui.add(style_controls, 'scale', 1, 100).onChange(function(value) {
+            mousetrap = false; // don't animate the shader during value change
+            scene.styles.cm_halftone_polygons.shaders.uniforms.dot_frequency = logslider(100 - value);
+            scene.requestRedraw();
+        });
+    }
+
+    // http://stackoverflow.com/a/846249/738675
+    function logslider(position) {
+      // position will be between 0 and 100
+      var minp = 1;
+      var maxp = 100;
+
+      // The result should be between 100 an 10000000
+      var minv = Math.log(10000);
+      var maxv = Math.log(10000000);
+
+      // calculate adjustment factor
+      var scale = (maxv-minv) / (maxp-minp);
+
+      return Math.exp(minv + scale*(position-minp));
+    }
+
+
+    /***** Render loop *****/
+    window.addEventListener('load', function () {
+        // Scene initialized
+        layer.on('init', function() {
+            addGUI();
+            // put gui on top
+            document.getElementsByClassName('ac')[0].style.zIndex = 10000;
+        });
+        layer.addTo(map);
+
+    });
+
+    return map;
 }());
